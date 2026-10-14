@@ -1,1 +1,0 @@
-print("DeconKordata V3")
