@@ -22,7 +22,7 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller --onefile --windowed --name DeconKordata src/decon_v3.py
+               pyinstaller --onefile --windowed --name DeconKordata decon_v3.py
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
