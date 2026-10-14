@@ -249,4 +249,3 @@ series.bind(
 update_diameters()
 
 root.mainloop()
-``
