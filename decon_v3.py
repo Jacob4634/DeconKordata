@@ -14,4 +14,3 @@ label = tk.Label(
 label.pack(pady=100)
 
 root.mainloop()
-``
