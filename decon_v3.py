@@ -19,40 +19,39 @@ MACHINES = {
 TOOLS = {
     "S610": {
         "teeth": 2,
+        "ap_max": 22,
         "diameters": [2,3,4,5,6,8,10,12,14,16,20]
     },
 
     "S611": {
         "teeth": 2,
+        "ap_max": 22,
         "diameters": [3,4,5,6,8,10,12,14,16,20]
     },
 
     "S650": {
         "teeth": 3,
+        "ap_max": 22,
         "diameters": [1,1.5,2,2.5,3,4,5,6,8,10,12,14,16,20]
     }
 }
 
-
 root = tk.Tk()
 
 root.title("DeconKordata V3")
-root.geometry("800x600")
+root.geometry("850x700")
 
 title = tk.Label(
     root,
     text="DECON KÖRDATA",
-    font=("Segoe UI", 22, "bold")
+    font=("Segoe UI", 24, "bold")
 )
 
 title.pack(pady=20)
 
 # Material
 
-tk.Label(
-    root,
-    text="Material"
-).pack()
+tk.Label(root, text="Material").pack()
 
 material = ttk.Combobox(
     root,
@@ -61,15 +60,11 @@ material = ttk.Combobox(
 )
 
 material.pack()
-
 material.current(0)
 
 # Maskin
 
-tk.Label(
-    root,
-    text="Maskin"
-).pack()
+tk.Label(root, text="Maskin").pack()
 
 machine = ttk.Combobox(
     root,
@@ -78,15 +73,11 @@ machine = ttk.Combobox(
 )
 
 machine.pack()
-
 machine.current(0)
 
 # Serie
 
-tk.Label(
-    root,
-    text="Verktygsserie"
-).pack()
+tk.Label(root, text="Verktygsserie").pack()
 
 series = ttk.Combobox(
     root,
@@ -95,15 +86,11 @@ series = ttk.Combobox(
 )
 
 series.pack()
-
 series.current(0)
 
 # Diameter
 
-tk.Label(
-    root,
-    text="Diameter"
-).pack()
+tk.Label(root, text="Diameter (mm)").pack()
 
 diameter = ttk.Combobox(
     root,
@@ -112,27 +99,33 @@ diameter = ttk.Combobox(
 
 diameter.pack()
 
+# AP
+
+tk.Label(root, text="AP (mm)").pack()
+
+ap_entry = tk.Entry(root)
+ap_entry.insert(0, "5")
+ap_entry.pack()
+
 # Resultat
 
 result = tk.Text(
     root,
-    height=15,
-    width=70
+    width=80,
+    height=18,
+    font=("Consolas", 10)
 )
 
-result.pack(
-    pady=20
-)
+result.pack(pady=15)
 
 def update_diameters(event=None):
 
     selected = series.get()
 
-    values = TOOLS[selected]["diameters"]
+    diameter["values"] = TOOLS[selected]["diameters"]
 
-    diameter["values"] = values
-
-    diameter.current(0)
+    if len(diameter["values"]) > 0:
+        diameter.current(0)
 
 def calculate():
 
@@ -142,10 +135,13 @@ def calculate():
 
     d = float(diameter.get())
 
+    ap_value = float(ap_entry.get())
+
     vc = MATERIALS[mat]["vc"]
     fz = MATERIALS[mat]["fz"]
 
     teeth = TOOLS[ser]["teeth"]
+    ap_max = TOOLS[ser]["ap_max"]
 
     max_rpm = MACHINES[mach]
 
@@ -177,7 +173,7 @@ def calculate():
         tk.END
     )
 
-    text = f"""
+    output = f"""
 MATERIAL
 {mat}
 
@@ -188,64 +184,17 @@ VERKTYG
 {ser}
 
 DIAMETER
-{d} mm
+{d:.1f} mm
 
-----------------------------
+AP
+{ap_value:.1f} mm
 
-REK Vc
+-----------------------------------
+
+REKOMMENDERAD Vc
 {vc:.1f} m/min
 
-REK RPM
+REKOMMENDERAT RPM
 {rpm_recommended:.0f}
 
-KÖR RPM
-{rpm_actual:.0f}
-
-FAKTISK Vc
-{actual_vc:.1f}
-
-Fz
-{fz}
-
-SKÄR
-{teeth}
-
-MATNING
-{feed:.0f} mm/min
-"""
-
-    if rpm_recommended > max_rpm:
-
-        text += f"""
-
-VARNING
-
-Maskinen begränsar RPM.
-
-Maskin max:
-{max_rpm}
-"""
-
-    result.insert(
-        tk.END,
-        text
-    )
-
-button = tk.Button(
-    root,
-    text="BERÄKNA",
-    command=calculate,
-    height=2,
-    width=20
-)
-
-button.pack(pady=10)
-
-series.bind(
-    "<<ComboboxSelected>>",
-    update_diameters
-)
-
-update_diameters()
-
-root.mainloop()
+MASK
